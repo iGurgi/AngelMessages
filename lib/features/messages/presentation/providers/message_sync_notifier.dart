@@ -1,153 +1,89 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/repositories/message_repository.dart';
-import '../../domain/models/sync_state.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import '../../data/repositories/messages_repository.dart';
+import '../../domain/models/message.dart';
 
-/// Notifier for managing daily message synchronization with the API
-/// 
-/// This notifier handles the sync state and provides methods to trigger
-/// message syncing from the remote service. It extends AsyncNotifier to
-/// handle async operations with loading states and error handling.
+part 'message_sync_notifier.freezed.dart';
+
+/// Sync state for message synchronization operations
+@freezed
+class SyncState with _$SyncState {
+  const factory SyncState.idle() = _Idle;
+  const factory SyncState.syncing() = _Syncing;
+  const factory SyncState.success({
+    required DateTime lastSyncTime,
+    required int messageCount,
+  }) = _Success;
+  const factory SyncState.error(String message) = _Error;
+}
+
+/// AsyncNotifier for handling message sync operations
 class MessageSyncNotifier extends AsyncNotifier<SyncState> {
-  late final MessageRepository _messageRepository;
-
   @override
   Future<SyncState> build() async {
-    // Get the message repository from the provider container
-    _messageRepository = ref.read(messageRepositoryProvider);
-    
-    // Return initial sync state
-    return const SyncState(
-      lastSyncTime: null,
-      issyncing: false,
-      messageCount: 0,
-      lastError: null,
-    );
+    // Initialize with idle state
+    return const SyncState.idle();
   }
 
-  /// Triggers a manual sync of daily messages from the API
-  /// 
-  /// Returns true if sync was successful, false otherwise.
-  /// Updates the sync state throughout the process.
-  Future<bool> syncMessages() async {
+  /// Triggers a sync operation to fetch daily messages from API
+  Future<void> syncMessages() async {
+    state = const AsyncValue.loading();
+    
     try {
       // Set syncing state
-      state = AsyncData(
-        state.value?.copyWith(
-          issyncing: true,
-          lastError: null,
-        ) ?? const SyncState(
-          lastSyncTime: null,
-          issyncing: true,
-          messageCount: 0,
-          lastError: null,
-        ),
-      );
-
-      // Perform the sync operation
-      final result = await _messageRepository.syncDailyMessages();
+      state = AsyncValue.data(const SyncState.syncing());
       
-      if (result.isSuccess) {
-        // Update state with successful sync
-        final now = DateTime.now();
-        final messageCount = await _messageRepository.getMessageCount();
-        
-        state = AsyncData(
-          SyncState(
-            lastSyncTime: now,
-            issyncing: false,
-            messageCount: messageCount,
-            lastError: null,
-          ),
-        );
-        
-        return true;
-      } else {
-        // Handle sync failure
-        final currentState = state.value ?? const SyncState(
-          lastSyncTime: null,
-          issyncing: false,
-          messageCount: 0,
-          lastError: null,
-        );
-        
-        state = AsyncData(
-          currentState.copyWith(
-            issyncing: false,
-            lastError: result.error,
-          ),
-        );
-        
-        return false;
-      }
+      final repository = ref.read(messagesRepositoryProvider);
+      
+      // Perform sync operation
+      final messages = await repository.syncMessagesFromApi();
+      
+      // Update state with success
+      state = AsyncValue.data(SyncState.success(
+        lastSyncTime: DateTime.now(),
+        messageCount: messages.length,
+      ));
+      
     } catch (error, stackTrace) {
-      // Handle unexpected errors
-      final currentState = state.value ?? const SyncState(
-        lastSyncTime: null,
-        issyncing: false,
-        messageCount: 0,
-        lastError: null,
+      // Handle sync errors
+      state = AsyncValue.error(
+        SyncState.error('Failed to sync messages: ${error.toString()}'),
+        stackTrace,
       );
-      
-      state = AsyncData(
-        currentState.copyWith(
-          issyncing: false,
-          lastError: error.toString(),
-        ),
-      );
-      
-      // Log error for debugging
-      // TODO: Add proper logging when logger is set up
-      // log('Message sync failed: $error', error, stackTrace);
-      
-      return false;
     }
   }
 
-  /// Checks if auto-sync should be performed based on last sync time
-  /// 
-  /// Returns true if it's been more than 24 hours since last sync
-  /// or if no sync has been performed yet.
-  bool shouldAutoSync() {
+  /// Checks if sync is needed based on last sync time
+  bool shouldSync() {
     final currentState = state.value;
-    if (currentState?.lastSyncTime == null) {
-      return true;
+    if (currentState is _Success) {
+      final timeSinceLastSync = DateTime.now().difference(currentState.lastSyncTime);
+      // Sync if more than 24 hours since last sync
+      return timeSinceLastSync.inHours >= 24;
     }
-    
-    final hoursSinceLastSync = DateTime.now()
-        .difference(currentState!.lastSyncTime!)
-        .inHours;
-    
-    return hoursSinceLastSync >= 24;
+    // Sync if never synced before or in error state
+    return true;
   }
 
-  /// Performs auto-sync if conditions are met
-  /// 
-  /// This method checks if auto-sync should be performed and triggers
-  /// it if necessary. Designed to be called on app startup or resume.
+  /// Auto-sync if needed (called on app startup/resume)
   Future<void> autoSyncIfNeeded() async {
-    if (shouldAutoSync() && !(state.value?.issyncing ?? false)) {
+    if (shouldSync()) {
       await syncMessages();
     }
   }
 
-  /// Resets the sync state (useful for testing or manual reset)
-  void resetSyncState() {
-    state = const AsyncData(
-      SyncState(
-        lastSyncTime: null,
-        issyncing: false,
-        messageCount: 0,
-        lastError: null,
-      ),
-    );
+  /// Forces a manual sync regardless of last sync time
+  Future<void> forcSync() async {
+    await syncMessages();
+  }
+
+  /// Resets sync state to idle
+  void resetState() {
+    state = const AsyncValue.data(SyncState.idle());
   }
 }
 
-/// Provider for the MessageSyncNotifier
-/// 
-/// This provider manages the daily message synchronization state
-/// and exposes methods to trigger sync operations.
-final messageSyncNotifierProvider = 
-    AsyncNotifierProvider<MessageSyncNotifier, SyncState>(
-  MessageSyncNotifier.new,
+/// Provider for MessageSyncNotifier
+final messageSyncProvider = AsyncNotifierProvider<MessageSyncNotifier, SyncState>(
+  () => MessageSyncNotifier(),
 );
