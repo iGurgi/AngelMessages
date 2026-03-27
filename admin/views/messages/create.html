@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Message - Angel Messages Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: #f5576c;
+        }
+
+        .error-message {
+            color: #f5576c;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group.error input,
+        .form-group.error textarea,
+        .form-group.error select {
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+        }
+
+        .back-link::before {
+            content: "← ";
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Create New Message</h1>
+            <p>Share divine inspiration with the world</p>
+        </div>
+
+        <div class="form-container">
+            <a href="../index.html" class="back-link">Back to Messages</a>
+            
+            <form id="messageForm" novalidate>
+                <div class="form-group" id="titleGroup">
+                    <label for="title">Message Title *</label>
+                    <input type="text" id="title" name="title" maxlength="100" required>
+                    <div class="char-counter" id="titleCounter">0/100</div>
+                    <div class="error-message" id="titleError">Title is required and must be between 1-100 characters</div>
+                </div>
+
+                <div class="form-group" id="contentGroup">
+                    <label for="content">Message Content *</label>
+                    <textarea id="content" name="content" maxlength="500" required placeholder="Enter your inspiring message here..."></textarea>
+                    <div class="char-counter" id="contentCounter">0/500</div>
+                    <div class="error-message" id="contentError">Content is required and must be between 1-500 characters</div>
+                </div>
+
+                <div class="form-group" id="categoryGroup">
+                    <label for="category">Category *</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="inspiration">Inspiration</option>
+                        <option value="guidance">Guidance</option>
+                        <option value="comfort">Comfort</option>
+                        <option value="strength">Strength</option>
+                        <option value="peace">Peace</option>
+                        <option value="love">Love</option>
+                        <option value="healing">Healing</option>
+                        <option value="gratitude">Gratitude</option>
+                        <option value="hope">Hope</option>
+                        <option value="wisdom">Wisdom</option>
+                    </select>
+                    <div class="error-message" id="categoryError">Please select a category</div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    ✨ Create Message
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('messageForm');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
+        const categorySelect = document.getElementById('category');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        const titleCounter = document.getElementById('titleCounter');
+        const contentCounter = document.getElementById('contentCounter');
+        
+        const titleGroup = document.getElementById('titleGroup');
+        const contentGroup = document.getElementById('contentGroup');
+        const categoryGroup = document.getElementById('categoryGroup');
+        
+        const titleError = document.getElementById('titleError');
+        const contentError = document.getElementById('contentError');
+        const categoryError = document.getElementById('categoryError');
+
+        // Character counters
+        function updateCounter(input, counter, maxLength) {
+            const currentLength = input.value.length;
+            counter.textContent = `${currentLength}/${maxLength}`;
+            
+            if (currentLength > maxLength * 0.9) {
+                counter.classList.add('warning');
+            } else {
+                counter.classList.remove('warning');
+            }
+        }
+
+        titleInput.addEventListener('input', () => updateCounter(titleInput, titleCounter, 100));
+        contentInput.addEventListener('input', () => updateCounter(contentInput, contentCounter, 500));
+
+        // Validation functions
+        function validateTitle() {
+            const value = titleInput.value.trim();
+            if (value.length === 0 || value.length > 100) {
+                titleGroup.classList.add('error');
+                return false;
+            }
+            titleGroup.classList.remove('error');
+            return true;
+        }
+
+        function validateContent() {
+            const value = contentInput.value.trim();
+            if (value.length === 0 || value.length > 500) {
+                contentGroup.classList.add('error');
+                return false;
+            }
+            contentGroup.classList.remove('error');
+            return true;
+        }
+
+        function validateCategory() {
+            if (categorySelect.value === '') {
+                categoryGroup.classList.add('error');
+                return false;
+            }
+            categoryGroup.classList.remove('error');
+            return true;
+        }
+
+        // Real-time validation
+        titleInput.addEventListener('blur', validateTitle);
+        titleInput.addEventListener('input', () => {
+            if (titleGroup.classList.contains('error')) {
+                validateTitle();
+            }
+        });
+
+        contentInput.addEventListener('blur', validateContent);
+        contentInput.addEventListener('input', () => {
+            if (contentGroup.classList.contains('error')) {
+                validateContent();
+            }
+        });
+
+        categorySelect.addEventListener('change', validateCategory);
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const titleValid = validateTitle();
+            const contentValid = validateContent();
+            const categoryValid = validateCategory();
+            
+            if (titleValid && contentValid && categoryValid) {
+                submitBtn.textContent = '✨ Creating Message...';
+                submitBtn.disabled = true;
+                
+                // Simulate API call
+                setTimeout(() => {
+                    alert('✨ Message created successfully! ✨');
+                    form.reset();
+                    updateCounter(titleInput, titleCounter, 100);
+                    updateCounter(contentInput, contentCounter, 500);
+                    submitBtn.textContent = '✨ Create Message';
+                    submitBtn.disabled = false;
+                }, 1500);
+            }
+        });
+
+        // Initialize counters
+        updateCounter(titleInput, titleCounter, 100);
+        updateCounter(contentInput, contentCounter, 500);
+    </script>
+</body>
+</html>
