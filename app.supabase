@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "api": {
+      "cors": {
+        "allowed_origins": [
+          "http://localhost:*",
+          "https://*.app.supabase.co",
+          "capacitor://localhost",
+          "ionic://localhost"
+        ]
+      }
+    }
+  }
+}
