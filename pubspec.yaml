@@ -1,36 +1,60 @@
 name: angel_messages
-description: "Daily inspirational messages from angels"
+description: Daily spiritual messages and inspiration from angels.
+
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.5.3 <4.0.0'
-  flutter: ">=3.24.3"
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.3'
 
 dependencies:
   flutter:
     sdk: flutter
+  
+  # State Management
   flutter_riverpod: 2.5.1
+  
+  # Database
   isar: 3.1.0+1
   isar_flutter_libs: 3.1.0+1
+  
+  # HTTP Client
   dio: 5.4.3+1
+  
+  # Navigation
   go_router: 14.2.7
+  
+  # Notifications
   flutter_local_notifications: 17.2.3
   timezone: 0.9.4
+  
+  # Permissions
   permission_handler: 11.3.1
-  freezed: 2.5.7
+  
+  # Code Generation
+  freezed_annotation: 2.4.1
   json_annotation: 4.9.0
+  
+  # Storage
   shared_preferences: 2.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: 1.0.4
+  
+  # Code Generation
   build_runner: 2.4.12
+  freezed: 2.5.7
   json_serializable: 6.8.0
   isar_generator: 3.1.0+1
-  flutter_lints: ^4.0.0
+  
+  # Testing
+  mocktail: 1.0.4
+  
+  # Linting
+  flutter_lints: 4.0.0
 
 flutter:
   uses-material-design: true
@@ -38,3 +62,14 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter-Regular.ttf
+        - asset: fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: fonts/Inter-Bold.ttf
+          weight: 700
