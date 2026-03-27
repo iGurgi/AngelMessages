@@ -9,228 +9,143 @@ class HomeScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            floating: false,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Daily Messages',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF6A1B9A), // Deep purple
-                      Color(0xFF8E24AA), // Medium purple
-                      Color(0xFFAB47BC), // Light purple
-                    ],
-                    stops: [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        title: Text(
+          'Angel Messages',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w600,
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  
-                  // Welcome Card
-                  Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.auto_awesome,
-                                color: colorScheme.primary,
-                                size: 28,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Today\'s Message',
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: colorScheme.onSurface,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: colorScheme.outline.withOpacity(0.2),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.favorite,
-                                  color: colorScheme.primary,
-                                  size: 32,
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Your daily message will appear here',
-                                  style: theme.textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onSurface.withOpacity(0.8),
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+        ),
+        centerTitle: true,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: colorScheme.surfaceTint,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Welcome section
+              Text(
+                'Today\'s Message',
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'A gentle reminder from your guardian angel',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              
+              // Message card
+              Expanded(
+                child: Card(
+                  elevation: 0,
+                  color: colorScheme.surfaceContainerLow,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    side: BorderSide(
+                      color: colorScheme.outline.withOpacity(0.2),
+                      width: 1,
                     ),
                   ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Quick Actions Section
-                  Text(
-                    'Quick Actions',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Card(
-                          elevation: 1,
-                          child: InkWell(
-                            onTap: () {
-                              // TODO: Navigate to message history
-                            },
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Angel icon
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.favorite,
+                            size: 32,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Message text
+                        Text(
+                          'You are deeply loved and supported by the universe. Trust in your inner wisdom and know that you are exactly where you need to be on your journey.',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                            height: 1.6,
+                            fontSize: 18,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Date
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.history,
-                                    color: colorScheme.primary,
-                                    size: 28,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'History',
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          ),
+                          child: Text(
+                            'December 28, 2024',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onSecondaryContainer,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Card(
-                          elevation: 1,
-                          child: InkWell(
-                            onTap: () {
-                              // TODO: Navigate to settings
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.settings,
-                                    color: colorScheme.primary,
-                                    size: 28,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Settings',
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Inspiration Section
-                  Card(
-                    elevation: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.lightbulb_outline,
-                                color: colorScheme.tertiary,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Daily Inspiration',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: colorScheme.onSurface,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Welcome to your personal space for divine messages and daily inspiration. Each day brings new wisdom and guidance.',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.8),
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
-                  
-                  const SizedBox(height: 32),
-                ],
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Bottom inspiration text
+              Text(
+                '"Every moment is a fresh beginning."',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // TODO: Implement refresh functionality
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Refreshing message...'),
+              backgroundColor: colorScheme.inverseSurface,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-          ),
-        ],
+          );
+        },
+        icon: const Icon(Icons.refresh),
+        label: const Text('Refresh'),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
     );
   }
