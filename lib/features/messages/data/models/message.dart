@@ -1,10 +1,12 @@
-import 'package:isar/isar.dart';
+// NOTE: Isar annotations temporarily commented for initial setup
+// Uncomment after running: dart run build_runner build --delete-conflicting-outputs
 
-// TODO: Uncomment after running build_runner
+// import 'package:isar/isar.dart';
+
 // part 'message.g.dart';
 
 /// Message entity stored in local Isar database
-@collection
+// @collection
 class Message {
   Message({
     required this.id,
@@ -16,9 +18,9 @@ class Message {
   });
 
   /// Unique identifier from Supabase (stored as String UUID)
-  Id get isarId => fastHash(id);
+  // Id get isarId => fastHash(id);
 
-  @Index(unique: true)
+  // @Index(unique: true)
   final String id;
 
   final String title;
