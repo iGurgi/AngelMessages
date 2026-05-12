@@ -1,122 +1,197 @@
+import 'package:angel_messages/core/routing/app_router.dart';
+import 'package:angel_messages/core/theme/app_theme.dart';
+import 'package:angel_messages/features/notifications/services/background_sync_service.dart';
+// TODO: After build_runner, switch to generated providers
+// import 'package:angel_messages/shared/providers/providers.dart';
+import 'package:angel_messages/shared/providers/providers_manual.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:uni_links/uni_links.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize WorkManager for background sync
+  await BackgroundSyncService.initialize();
+
+  runApp(
+    const ProviderScope(
+      child: AngelMessagesApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+/// Main application widget
+class AngelMessagesApp extends ConsumerStatefulWidget {
+  const AngelMessagesApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+  ConsumerState<AngelMessagesApp> createState() => _AngelMessagesAppState();
+}
+
+class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Initialize notification handling
+    await _initializeNotifications();
+
+    // Request permissions on first launch
+    await _requestPermissionsOnFirstLaunch();
+
+    // Register background sync
+    await _registerBackgroundSync();
+
+    // Schedule initial notifications
+    await _scheduleNotifications();
+
+    // Initialize deep link handling
+    _initializeDeepLinks();
+  }
+
+  /// Initialize notification plugin and handlers
+  Future<void> _initializeNotifications() async {
+    final notificationsPlugin = ref.read(notificationsPluginProvider);
+
+    // Set up notification tap handler
+    notificationsPlugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        _handleNotificationTap(response.payload);
+      },
+    );
+
+    // Handle notification that launched the app
+    final launchDetails =
+        await notificationsPlugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp ?? false) {
+      _handleNotificationTap(
+        launchDetails?.notificationResponse?.payload,
+      );
+    }
+  }
+
+  /// Handle notification tap
+  void _handleNotificationTap(String? payload) {
+    if (payload != null && payload.isNotEmpty) {
+      // Navigate to message detail
+      AppRouter.router.push('/message/$payload');
+    }
+  }
+
+  /// Request permissions on first launch
+  Future<void> _requestPermissionsOnFirstLaunch() async {
+    final settingsRepo = await ref.read(settingsRepositoryProvider.future);
+
+    if (settingsRepo.isFirstLaunch()) {
+      // Show permission rationale dialog
+      if (mounted) {
+        await _showPermissionRationaleDialog();
+      }
+
+      // Request notification permission
+      final status = await Permission.notification.request();
+      await settingsRepo.setNotificationPermissionGranted(status.isGranted);
+
+      // Mark first launch as complete
+      await settingsRepo.setFirstLaunchComplete();
+    }
+  }
+
+  /// Show permission rationale dialog
+  Future<void> _showPermissionRationaleDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                color: AppTheme.softGold,
+              ),
+              const SizedBox(width: 8),
+              const Text('Welcome to Angel Messages'),
+            ],
+          ),
+          content: const Text(
+            'To receive your daily inspirational messages, '
+            'we need permission to send you notifications. '
+            'You can change this anytime in Settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Continue'),
+            ),
+          ],
+        );
+      },
     );
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  /// Register background sync task
+  Future<void> _registerBackgroundSync() async {
+    final backgroundSync = await ref.read(backgroundSyncServiceProvider.future);
+    await backgroundSync.registerDailySync();
+  }
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  /// Schedule initial notifications
+  Future<void> _scheduleNotifications() async {
+    final settingsRepo = await ref.read(settingsRepositoryProvider.future);
+    final scheduler = await ref.read(notificationSchedulerProvider.future);
+    final category = settingsRepo.getScheduleCategory();
+    await scheduler.scheduleNotifications(category);
+  }
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  /// Initialize deep link handling
+  void _initializeDeepLinks() {
+    // Handle initial link if app was opened via deep link
+    getInitialLink().then((String? initialLink) {
+      if (initialLink != null) {
+        _handleDeepLink(initialLink);
+      }
+    });
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+    // Listen for deep links while app is running
+    linkStream.listen((String? link) {
+      if (link != null) {
+        _handleDeepLink(link);
+      }
     });
   }
 
+  /// Handle deep link
+  void _handleDeepLink(String link) {
+    // Parse link format: angelmessages://message/:id
+    final uri = Uri.parse(link);
+    if (uri.scheme == 'angelmessages' && uri.host == 'message') {
+      final messageId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
+      if (messageId != null) {
+        AppRouter.router.push('/message/$messageId');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+    return MaterialApp.router(
+      title: 'Angel Messages',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      routerConfig: AppRouter.router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
