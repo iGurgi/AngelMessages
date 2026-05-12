@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+// ignore_for_file: depend_on_referenced_packages
 part 'database.g.dart';
 
 class Messages extends Table {
