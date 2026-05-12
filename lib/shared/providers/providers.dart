@@ -13,7 +13,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'providers.g.dart';
+// TODO: Uncomment after running build_runner
+// part 'providers.g.dart';
 
 // ============================================================================
 // Infrastructure Providers
