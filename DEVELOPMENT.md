@@ -19,9 +19,9 @@ dart run build_runner build --delete-conflicting-outputs
 ```
 
 This generates:
-- `*.g.dart` - JSON serialization and Riverpod providers
+- `*.g.dart` - JSON serialization, Riverpod providers, and Drift database
 - `*.freezed.dart` - Immutable data classes
-- `*.isar.dart` - Database schemas
+- `*.drift.dart` - Database schemas
 
 ### Step 3: Verify Setup
 
@@ -63,7 +63,7 @@ The CI pipeline automatically runs code generation before analysis and testing. 
 ```bash
 find . -name "*.g.dart" -delete
 find . -name "*.freezed.dart" -delete
-find . -name "*.isar.dart" -delete
+find . -name "*.drift.dart" -delete
 dart run build_runner build --delete-conflicting-outputs
 ```
 
@@ -137,7 +137,7 @@ flutter build ipa --release
 ```
 lib/
 ├── data/           # Database and repositories
-├── models/         # Data models (with Freezed + Isar)
+├── models/         # Data models (with Freezed)
 ├── providers/      # Riverpod state management
 ├── router/         # GoRouter navigation
 ├── screens/        # UI screens
@@ -149,15 +149,15 @@ lib/
 
 ## Key Dependencies
 
-- **flutter_riverpod** 2.5.1 - State management
-- **isar** 3.1.8 - Local database (locked to 3.x)
-- **freezed** 2.5.7 - Immutable models
-- **go_router** 14.3.0 - Declarative routing
-- **flutter_local_notifications** 17.2.3 - Notifications
+- **flutter_riverpod** ^2.5.1 - State management
+- **drift** ^2.18.0 - Local SQLite database (offline-first)
+- **freezed** ^2.5.7 - Immutable models
+- **go_router** ^14.3.0 - Declarative routing
+- **flutter_local_notifications** ^17.2.3 - Notifications
 
-### Why Isar 3.1.8?
+### Why Drift?
 
-Isar 4.x has breaking API changes and dropped web support. We're locked to 3.1.8 per the architecture spec.
+Drift (formerly Moor) provides type-safe SQL database access compatible with Dart 3.5+ and offers excellent offline-first capabilities for our angel messages app.
 
 ## Debug Tips
 
@@ -173,12 +173,12 @@ Install the Riverpod DevTools extension in your IDE or use the Dart DevTools.
 
 ### Database Inspection
 
-Isar databases are stored in the app's documents directory. You can use Isar Inspector to view the database:
+Drift databases are SQLite files stored in the app's documents directory. You can use various SQLite inspection tools or Drift's built-in debugging:
 
 ```bash
 # Find your app's data directory
 flutter run
-# Then use Isar Inspector (VS Code extension or standalone)
+# Database file will be at: <app_documents>/angel_messages.db
 ```
 
 ### Notification Testing
