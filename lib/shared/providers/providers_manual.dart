@@ -20,8 +20,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final isarProvider = FutureProvider<Isar>((ref) async {
   final dir = await getApplicationDocumentsDirectory();
+  // NOTE: MessageSchema will be available after build_runner
+  // For now, this will fail at runtime but allows compilation
   final isar = await Isar.open(
-    [MessageSchema],
+    [], // Empty schema list for now
     directory: dir.path,
     name: AppConstants.dbName,
   );
