@@ -22,14 +22,11 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Install dependencies (ignore errors for codegen)
-        run: flutter pub get || true
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Install dependencies again (after codegen)
-        run: flutter pub get
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
@@ -67,14 +64,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install dependencies (ignore errors for codegen)
-        run: flutter pub get || true
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Install dependencies again (after codegen)
-        run: flutter pub get
 
       - name: Build APK
         run: flutter build apk --release
@@ -95,14 +89,11 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Install dependencies (ignore errors for codegen)
-        run: flutter pub get || true
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Install dependencies again (after codegen)
-        run: flutter pub get
 
       - name: Build iOS (no codesign)
         run: flutter build ios --release --no-codesign
