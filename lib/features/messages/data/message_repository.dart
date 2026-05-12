@@ -69,7 +69,7 @@ class MessageRepository {
   }
 
   /// Get next unviewed message
-  Future<Message?> getNextUnviewedMessage() async {
+  Future<MessageData?> getNextUnviewedMessage() async {
     final unviewed = await database.getUnviewedMessages();
 
     if (unviewed.isEmpty) {
@@ -83,7 +83,7 @@ class MessageRepository {
   }
 
   /// Get message by ID
-  Future<Message?> getMessageById(String id) async {
+  Future<MessageData?> getMessageById(String id) async {
     return database.getMessageById(id);
   }
 
@@ -93,7 +93,7 @@ class MessageRepository {
   }
 
   /// Get all messages
-  Future<List<Message>> getAllMessages() async {
+  Future<List<MessageData>> getAllMessages() async {
     return database.getAllMessages();
   }
 
