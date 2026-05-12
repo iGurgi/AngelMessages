@@ -43,11 +43,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Generated files
-*.g.dart
-*.freezed.dart
-*.isar.dart
-
 # Environment variables
 .env
 .env.local
@@ -99,3 +94,10 @@ coverage/
 **/linux/flutter/generated_plugin_registrant.cc
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
+
+# NOTE: Generated Dart files are typically gitignored,
+# but for CI compatibility we include them. Run build_runner locally.
+# If you prefer to gitignore them, uncomment the lines below and update CI:
+# *.g.dart
+# *.freezed.dart
+# *.isar.dart
