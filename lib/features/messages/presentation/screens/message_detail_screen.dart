@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:angel_messages/core/routing/app_router.dart';
 import 'package:angel_messages/core/theme/app_theme.dart';
-import 'package:angel_messages/shared/providers/providers.dart';
+// TODO: After build_runner, switch to generated providers
+// import 'package:angel_messages/shared/providers/providers.dart';
+import 'package:angel_messages/shared/providers/providers_manual.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
