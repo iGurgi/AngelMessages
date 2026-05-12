@@ -1,122 +1,183 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:uni_links/uni_links.dart';
+import 'package:angel_messages/router/app_router.dart';
+import 'package:angel_messages/theme/app_theme.dart';
+import 'package:angel_messages/providers/repository_providers.dart';
+import 'package:angel_messages/providers/schedule_providers.dart';
+import 'package:angel_messages/data/message_repository.dart';
+import 'package:angel_messages/services/supabase_service.dart';
 
-void main() {
-  runApp(const MyApp());
+/// Background task callback for daily sync
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    if (task == 'angelMessages.dailySync') {
+      try {
+        // Create service instances for background sync
+        final supabaseService = SupabaseService(
+          supabaseUrl: 'https://your-project.supabase.co',
+          supabaseAnonKey: 'your-anon-key',
+        );
+        final repository = MessageRepository(supabaseService: supabaseService);
+
+        // Sync messages from remote
+        await repository.syncFromRemote();
+
+        return Future.value(true);
+      } catch (e) {
+        // Silent fail for background tasks
+        return Future.value(false);
+      }
+    }
+    return Future.value(false);
+  });
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  // This widget is the root of your application.
+  // Initialize WorkManager for background sync
+  await Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: false,
+  );
+
+  // Register daily sync task
+  await Workmanager().registerPeriodicTask(
+    'angelMessages.dailySync',
+    'angelMessages.dailySync',
+    frequency: const Duration(hours: 24),
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+    ),
+  );
+
+  runApp(
+    const ProviderScope(
+      child: AngelMessagesApp(),
+    ),
+  );
+}
+
+class AngelMessagesApp extends ConsumerStatefulWidget {
+  const AngelMessagesApp({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  ConsumerState<AngelMessagesApp> createState() => _AngelMessagesAppState();
+}
+
+class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
+  StreamSubscription<String?>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  Future<void> _initializeApp() async {
+    // Initialize notifications
+    await _initializeNotifications();
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+    // Initialize scheduled notifications based on saved preference
+    await _initializeScheduledNotifications();
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+    // Handle deep links
+    _handleDeepLinks();
 
-  final String title;
+    // Handle initial link (cold start)
+    _handleInitialLink();
+  }
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Future<void> _initializeNotifications() async {
+    final plugin = ref.read(flutterLocalNotificationsPluginProvider);
+    final scheduler = ref.read(notificationSchedulerProvider);
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+    await scheduler.initialize();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+    // Handle notification taps
+    plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(),
+      ),
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        _handleNotificationTap(response.payload);
+      },
+    );
+
+    // Handle notification tap when app is terminated
+    final launchDetails =
+        await plugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp ?? false) {
+      final payload = launchDetails?.notificationResponse?.payload;
+      if (payload != null) {
+        _handleNotificationTap(payload);
+      }
+    }
+  }
+
+  Future<void> _initializeScheduledNotifications() async {
+    final schedule = await ref.read(scheduleNotifierProvider.future);
+    final scheduler = ref.read(notificationSchedulerProvider);
+    await scheduler.scheduleNotifications(schedule);
+  }
+
+  void _handleNotificationTap(String? payload) {
+    if (payload != null) {
+      // Navigate to message detail screen
+      appRouter.push(AppRoutes.messageDetail(payload));
+    }
+  }
+
+  void _handleDeepLinks() {
+    _linkSubscription = uriLinkStream.listen((Uri? uri) {
+      if (uri != null) {
+        _processDeepLink(uri);
+      }
     });
   }
 
+  Future<void> _handleInitialLink() async {
+    try {
+      final uri = await getInitialUri();
+      if (uri != null) {
+        _processDeepLink(uri);
+      }
+    } catch (e) {
+      // Handle exception
+    }
+  }
+
+  void _processDeepLink(Uri uri) {
+    // Handle angelmessages://message/:id
+    if (uri.scheme == 'angelmessages' && uri.pathSegments.isNotEmpty) {
+      if (uri.pathSegments[0] == 'message' && uri.pathSegments.length > 1) {
+        final messageId = uri.pathSegments[1];
+        appRouter.push(AppRoutes.messageDetail(messageId));
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+    return MaterialApp.router(
+      title: 'Angel Messages',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
