@@ -1,27 +1,35 @@
-import 'package:isar/isar.dart';
+import 'dart:io';
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:angel_messages/models/message.dart';
+import 'package:path/path.dart' as p;
 
-class AppDatabase {
-  static Isar? _instance;
+part 'database.g.dart';
 
-  static Future<Isar> getInstance() async {
-    if (_instance != null) {
-      return _instance!;
-    }
+class Messages extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get body => text()();
+  TextColumn get category => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  BoolColumn get viewed => boolean().withDefault(const Constant(false))();
 
-    final dir = await getApplicationDocumentsDirectory();
-    _instance = await Isar.open(
-      [MessageSchema],
-      directory: dir.path,
-      name: 'angel_messages',
-    );
+  @override
+  Set<Column> get primaryKey => {id};
+}
 
-    return _instance!;
-  }
+@DriftDatabase(tables: [Messages])
+class AppDatabase extends _$AppDatabase {
+  AppDatabase() : super(_openConnection());
 
-  static Future<void> close() async {
-    await _instance?.close();
-    _instance = null;
+  @override
+  int get schemaVersion => 1;
+
+  static LazyDatabase _openConnection() {
+    return LazyDatabase(() async {
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dbFolder.path, 'angel_messages.db'));
+      return NativeDatabase(file);
+    });
   }
 }
