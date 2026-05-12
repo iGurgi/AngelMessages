@@ -21,6 +21,7 @@ void callbackDispatcher() {
 
       return true;
     } catch (e) {
+      // ignore: avoid_print
       print('Background sync failed: $e');
       return false;
     }
