@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 
-part 'message.g.dart';
+// TODO: Uncomment after running build_runner
+// part 'message.g.dart';
 
 /// Message entity stored in local Isar database
 @collection
