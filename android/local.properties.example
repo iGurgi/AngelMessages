@@ -1,0 +1,9 @@
+# Flutter SDK path
+# This file should be created by running 'flutter doctor'
+# Example:
+# sdk.dir=/Users/username/Library/Android/sdk
+# flutter.sdk=/Users/username/development/flutter
+
+# For Windows:
+# sdk.dir=C:\\Users\\username\\AppData\\Local\\Android\\sdk
+# flutter.sdk=C:\\Users\\username\\flutter
