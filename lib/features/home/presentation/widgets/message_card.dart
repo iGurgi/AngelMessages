@@ -4,7 +4,7 @@ import 'package:angel_messages/core/database/database.dart';
 import 'package:angel_messages/core/theme/app_theme.dart';
 
 class MessageCard extends StatelessWidget {
-  final Message message;
+  final MessageData message;
 
   const MessageCard({
     super.key,
