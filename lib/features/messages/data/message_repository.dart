@@ -53,7 +53,7 @@ class MessageRepository {
 
       if (response.statusCode == 200 && response.data is List) {
         final messages = (response.data as List)
-            .map((json) => _messageFromSupabase(json))
+            .map((json) => _messageFromSupabase(json as Map<String, dynamic>))
             .toList();
 
         // Upsert messages into local database
@@ -63,6 +63,7 @@ class MessageRepository {
       }
     } on DioException catch (e) {
       // Log error but don't throw - offline-first architecture
+      // ignore: avoid_print
       print('Failed to sync messages: ${e.message}');
     }
   }
