@@ -10,5 +10,5 @@ targets:
           field_rename: snake_case
       riverpod_generator:
         enabled: true
-      isar_generator:
+      drift_dev:
         enabled: true
