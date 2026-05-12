@@ -25,6 +25,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Uncomment part directives
+        run: |
+          sed -i 's|// part|part|g' lib/shared/providers/providers.dart
+          sed -i 's|// part|part|g' lib/features/messages/data/models/message.dart
+
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
 
@@ -67,6 +72,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Uncomment part directives
+        run: |
+          sed -i 's|// part|part|g' lib/shared/providers/providers.dart
+          sed -i 's|// part|part|g' lib/features/messages/data/models/message.dart
+
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
 
@@ -91,6 +101,11 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Uncomment part directives
+        run: |
+          sed -i '' 's|// part|part|g' lib/shared/providers/providers.dart
+          sed -i '' 's|// part|part|g' lib/features/messages/data/models/message.dart
 
       - name: Run code generation
         run: dart run build_runner build --delete-conflicting-outputs
