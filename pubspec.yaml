@@ -19,11 +19,14 @@ dependencies:
   freezed_annotation: 2.4.4
   json_annotation: 4.9.0
   
-  # Local Storage
-  isar: 3.1.8
-  isar_flutter_libs: 3.1.8
-  shared_preferences: 2.3.2
+  # Local Storage - Using Drift instead of Isar for Dart 3.5 compatibility
+  drift: 2.18.0
+  sqlite3_flutter_libs: 0.5.24
   path_provider: 2.1.4
+  shared_preferences: 2.3.2
+  
+  # Network
+  connectivity_plus: 6.0.5
   
   # Notifications
   flutter_local_notifications: 17.2.3
@@ -33,7 +36,6 @@ dependencies:
   
   # Background Tasks
   workmanager: 0.5.2
-  background_fetch: 1.2.2
   
   # UI & Design System
   google_fonts: 6.2.1
@@ -43,8 +45,8 @@ dependencies:
   shimmer: 3.0.0
   gap: 3.0.1
   
-  # Navigation & Deep Links
-  uni_links: 0.5.1
+  # Navigation & Deep Links - Using app_links instead of deprecated uni_links
+  app_links: 6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -54,11 +56,11 @@ dev_dependencies:
   freezed: 2.5.7
   riverpod_generator: 2.4.3
   json_serializable: 6.8.0
-  isar_generator: 3.1.8
+  drift_dev: 2.18.0
   build_runner: 2.4.12
   
   # Linting
-  flutter_lints: 4.0.0
+  flutter_lints: 5.0.0
   
   # Testing
   mocktail: 1.0.4
