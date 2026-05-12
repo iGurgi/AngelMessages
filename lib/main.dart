@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 import 'package:angel_messages/router/app_router.dart';
 import 'package:angel_messages/theme/app_theme.dart';
 import 'package:angel_messages/providers/repository_providers.dart';
 import 'package:angel_messages/providers/schedule_providers.dart';
+import 'package:angel_messages/data/database.dart';
 import 'package:angel_messages/data/message_repository.dart';
 import 'package:angel_messages/services/supabase_service.dart';
 
@@ -22,10 +23,17 @@ void callbackDispatcher() {
           supabaseUrl: 'https://your-project.supabase.co',
           supabaseAnonKey: 'your-anon-key',
         );
-        final repository = MessageRepository(supabaseService: supabaseService);
+        final database = AppDatabase();
+        final repository = MessageRepository(
+          database: database,
+          supabaseService: supabaseService,
+        );
 
         // Sync messages from remote
         await repository.syncFromRemote();
+
+        // Clean up
+        await database.close();
 
         return Future.value(true);
       } catch (e) {
@@ -71,7 +79,8 @@ class AngelMessagesApp extends ConsumerStatefulWidget {
 }
 
 class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
-  StreamSubscription<String?>? _linkSubscription;
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
 
   @override
   void initState() {
@@ -86,6 +95,9 @@ class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
     // Initialize scheduled notifications based on saved preference
     await _initializeScheduledNotifications();
 
+    // Initialize app links
+    _appLinks = AppLinks();
+
     // Handle deep links
     _handleDeepLinks();
 
@@ -94,13 +106,13 @@ class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
   }
 
   Future<void> _initializeNotifications() async {
-    final plugin = ref.read(flutterLocalNotificationsPluginProvider);
+    final plugin = ref.read(notificationsPluginProvider);
     final scheduler = ref.read(notificationSchedulerProvider);
 
     await scheduler.initialize();
 
     // Handle notification taps
-    plugin.initialize(
+    await plugin.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(),
@@ -111,8 +123,7 @@ class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
     );
 
     // Handle notification tap when app is terminated
-    final launchDetails =
-        await plugin.getNotificationAppLaunchDetails();
+    final launchDetails = await plugin.getNotificationAppLaunchDetails();
     if (launchDetails?.didNotificationLaunchApp ?? false) {
       final payload = launchDetails?.notificationResponse?.payload;
       if (payload != null) {
@@ -130,21 +141,19 @@ class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
       // Navigate to message detail screen
-      appRouter.push(AppRoutes.messageDetail(payload));
+      appRouter.push('/message/$payload');
     }
   }
 
   void _handleDeepLinks() {
-    _linkSubscription = uriLinkStream.listen((Uri? uri) {
-      if (uri != null) {
-        _processDeepLink(uri);
-      }
+    _linkSubscription = _appLinks.uriLinkStream.listen((Uri uri) {
+      _processDeepLink(uri);
     });
   }
 
   Future<void> _handleInitialLink() async {
     try {
-      final uri = await getInitialUri();
+      final uri = await _appLinks.getInitialLink();
       if (uri != null) {
         _processDeepLink(uri);
       }
@@ -158,7 +167,7 @@ class _AngelMessagesAppState extends ConsumerState<AngelMessagesApp> {
     if (uri.scheme == 'angelmessages' && uri.pathSegments.isNotEmpty) {
       if (uri.pathSegments[0] == 'message' && uri.pathSegments.length > 1) {
         final messageId = uri.pathSegments[1];
-        appRouter.push(AppRoutes.messageDetail(messageId));
+        appRouter.push('/message/$messageId');
       }
     }
   }
