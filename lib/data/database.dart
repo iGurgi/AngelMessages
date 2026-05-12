@@ -28,8 +28,8 @@ class AppDatabase extends _$AppDatabase {
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
-      final file = File(p.join(dbFolder.path, 'angel_messages.db'));
-      return NativeDatabase(file);
+      final file = File(p.join(dbFolder.path, 'angel_messages.sqlite'));
+      return NativeDatabase.createInBackground(file);
     });
   }
 }
