@@ -133,7 +133,7 @@ class NotificationScheduler {
       message.title,
       message.body,
       scheduledDate,
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           Environment.notificationChannelId,
           Environment.notificationChannelName,
@@ -141,7 +141,7 @@ class NotificationScheduler {
           importance: Importance.high,
           priority: Priority.high,
         ),
-        iOS: const DarwinNotificationDetails(
+        iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
