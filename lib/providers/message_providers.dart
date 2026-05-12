@@ -31,18 +31,11 @@ class MessageDetail extends _$MessageDetail {
     return repository.getMessageById(messageId);
   }
 
-  Future<void> markAsViewed() async {
+  Future<void> markAsViewed(String messageId) async {
     final repository = ref.read(messageRepositoryProvider);
     await repository.markAsViewed(messageId);
     ref.invalidate(allMessagesProvider);
-    ref.invalidate(unviewedCountProvider);
   }
-}
-
-@riverpod
-Future<int> unviewedCount(UnviewedCountRef ref) async {
-  final repository = ref.watch(messageRepositoryProvider);
-  return repository.getUnviewedCount();
 }
 
 @riverpod
