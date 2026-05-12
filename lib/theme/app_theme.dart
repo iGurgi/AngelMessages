@@ -13,7 +13,6 @@ class AppTheme {
       primary: mutedLavender,
       secondary: softGold,
       surface: Colors.white,
-      background: const Color(0xFFF5F5F5),
     );
 
     return _buildTheme(colorScheme);
@@ -26,7 +25,6 @@ class AppTheme {
       primary: mutedLavender,
       secondary: softGold,
       surface: const Color(0xFF1E1E1E),
-      background: deepPurple,
     );
 
     return _buildTheme(colorScheme);
@@ -130,7 +128,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
@@ -155,14 +153,14 @@ class AppTheme {
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return mutedLavender;
             }
             return colorScheme.surface;
           }),
-          foregroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return Colors.white;
             }
             return colorScheme.onSurface;
