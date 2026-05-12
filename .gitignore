@@ -46,7 +46,7 @@ app.*.map.json
 # Generated files
 *.g.dart
 *.freezed.dart
-*.isar.dart
+*.drift.dart
 *.config.dart
 
 # FVM
