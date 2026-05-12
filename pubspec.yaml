@@ -1,41 +1,75 @@
-name: AngelMessages
-description: A personal Flutter app.
-publish_to: none
+name: angel_messages
+description: A spiritual messaging app delivering inspirational angel-themed notifications
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # State management
-  flutter_riverpod: ^3.3.1
-  riverpod_annotation: ^4.0.2
-
-  # Navigation
-  go_router: ^17.1.0
-
-  # Immutable models + unions
-  freezed_annotation: ^3.1.0
-  json_annotation: ^4.9.0
-
-  # HTTP
+  
+  # Core Runtime
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  go_router: ^14.3.0
   dio: ^5.7.0
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  
+  # Local Storage - Using Drift instead of Isar for Dart 3.5 compatibility
+  drift: ^2.18.0
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  shared_preferences: ^2.3.2
+  
+  # Network
+  connectivity_plus: ^6.0.5
+  
+  # Notifications
+  flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+  flutter_timezone: ^1.0.8
+  permission_handler: ^11.3.1
+  
+  # Background Tasks
+  workmanager: ^0.5.2
+  
+  # UI & Design System
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.4.1
+  lottie: ^3.1.2
+  shimmer: ^3.0.0
+  gap: ^3.0.1
+  
+  # Navigation & Deep Links - Using app_links instead of deprecated uni_links
+  app_links: ^6.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Code generation
-  build_runner: ^2.4.13
-  riverpod_generator: ^4.0.3
-  freezed: ^3.2.5
+  
+  # Code Generation & Serialisation
+  freezed: ^2.5.7
+  riverpod_generator: ^2.4.3
   json_serializable: ^6.8.0
-
+  drift_dev: ^2.18.0
+  build_runner: ^2.4.12
+  
   # Linting
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
+  
+  # Testing
+  mocktail: ^1.0.4
+  fake_async: ^1.3.1
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/animations/
