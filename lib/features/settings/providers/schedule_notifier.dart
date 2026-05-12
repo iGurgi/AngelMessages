@@ -52,14 +52,16 @@ class ScheduleNotifier extends _$ScheduleNotifier {
 @riverpod
 NotificationScheduler notificationScheduler(NotificationSchedulerRef ref) {
   final messageRepository = ref.watch(messageRepositoryProvider);
-  final scheduler = NotificationScheduler(messageRepository: messageRepository);
+  final scheduler = NotificationScheduler(
+    messageRepository: messageRepository,
+  );
   
-  // Set the scheduler in the ScheduleNotifier
+  // Listen for schedule changes and reschedule notifications
   ref.listen<AsyncValue<ScheduleCategory>>(
     scheduleNotifierProvider,
     (previous, next) {
-      next.whenData((category) {
-        scheduler.scheduleNotifications(category);
+      next.whenData((category) async {
+        await scheduler.scheduleNotifications(category);
       });
     },
   );
