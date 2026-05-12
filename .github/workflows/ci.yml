@@ -1,14 +1,12 @@
 name: CI
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or SHA to run CI on
+        required: false
+        default: main
 
 jobs:
   analyze-and-test:
