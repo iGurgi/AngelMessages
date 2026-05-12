@@ -36,7 +36,7 @@ class _MessageDetailScreenState extends ConsumerState<MessageDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(messageDetailProvider(widget.messageId).notifier)
-          .markAsViewed();
+          .markAsViewed(widget.messageId);
     });
   }
 
