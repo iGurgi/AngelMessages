@@ -62,14 +62,14 @@ class NotificationScheduler {
   /// Schedule Angel Times notifications (1:11, 2:22, 3:33, 4:44, 5:55, 11:11, 12:12, 22:22)
   Future<void> _scheduleAngelTimes() async {
     final angelTimes = [
-      const TimeOfDay(hour: 1, minute: 11),
-      const TimeOfDay(hour: 2, minute: 22),
-      const TimeOfDay(hour: 3, minute: 33),
-      const TimeOfDay(hour: 4, minute: 44),
-      const TimeOfDay(hour: 5, minute: 55),
-      const TimeOfDay(hour: 11, minute: 11),
-      const TimeOfDay(hour: 12, minute: 12),
-      const TimeOfDay(hour: 22, minute: 22),
+      _TimeSpec(hour: 1, minute: 11),
+      _TimeSpec(hour: 2, minute: 22),
+      _TimeSpec(hour: 3, minute: 33),
+      _TimeSpec(hour: 4, minute: 44),
+      _TimeSpec(hour: 5, minute: 55),
+      _TimeSpec(hour: 11, minute: 11),
+      _TimeSpec(hour: 12, minute: 12),
+      _TimeSpec(hour: 22, minute: 22),
     ];
 
     for (var i = 0; i < angelTimes.length; i++) {
@@ -196,8 +196,9 @@ class NotificationScheduler {
   }
 }
 
-class TimeOfDay {
-  const TimeOfDay({required this.hour, required this.minute});
+/// Internal time specification class
+class _TimeSpec {
+  _TimeSpec({required this.hour, required this.minute});
   final int hour;
   final int minute;
 }
