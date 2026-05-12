@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 part 'database.g.dart';
 
+@DataClassName('MessageData')
 class Messages extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
@@ -27,12 +28,12 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 
   // Query methods
-  Future<List<Message>> getAllMessages() => select(messages).get();
+  Future<List<MessageData>> getAllMessages() => select(messages).get();
 
-  Future<List<Message>> getUnviewedMessages() =>
+  Future<List<MessageData>> getUnviewedMessages() =>
       (select(messages)..where((tbl) => tbl.viewed.equals(false))).get();
 
-  Future<Message?> getMessageById(String id) =>
+  Future<MessageData?> getMessageById(String id) =>
       (select(messages)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
 
   Future<int> insertMessage(MessagesCompanion message) =>
