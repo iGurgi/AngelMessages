@@ -1,7 +1,9 @@
 import 'package:angel_messages/core/constants/app_constants.dart';
 import 'package:angel_messages/core/routing/app_router.dart';
 import 'package:angel_messages/core/theme/app_theme.dart';
-import 'package:angel_messages/shared/providers/providers.dart';
+// TODO: After build_runner, switch to generated providers
+// import 'package:angel_messages/shared/providers/providers.dart';
+import 'package:angel_messages/shared/providers/providers_manual.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -37,9 +39,11 @@ class SettingsScreen extends ConsumerWidget {
             data: (category) => _ScheduleSelector(
               currentCategory: category,
               onCategoryChanged: (newCategory) async {
-                await ref
-                    .read(scheduleCategoryProvider.notifier)
-                    .setCategory(newCategory);
+                final repo = await ref.read(settingsRepositoryProvider.future);
+                await repo.setScheduleCategory(newCategory);
+                final scheduler = await ref.read(notificationSchedulerProvider.future);
+                await scheduler.scheduleNotifications(newCategory);
+                ref.invalidate(scheduleCategoryProvider);
               },
             ),
             loading: () => const Center(
@@ -64,9 +68,9 @@ class SettingsScreen extends ConsumerWidget {
               granted: granted,
               onTap: () async {
                 final status = await Permission.notification.request();
-                await ref
-                    .read(notificationPermissionProvider.notifier)
-                    .setGranted(status.isGranted);
+                final repo = await ref.read(settingsRepositoryProvider.future);
+                await repo.setNotificationPermissionGranted(status.isGranted);
+                ref.invalidate(notificationPermissionProvider);
                 
                 if (!status.isGranted && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
