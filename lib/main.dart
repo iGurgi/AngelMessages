@@ -1,7 +1,9 @@
 import 'package:angel_messages/core/routing/app_router.dart';
 import 'package:angel_messages/core/theme/app_theme.dart';
 import 'package:angel_messages/features/notifications/services/background_sync_service.dart';
-import 'package:angel_messages/shared/providers/providers.dart';
+// TODO: After build_runner, switch to generated providers
+// import 'package:angel_messages/shared/providers/providers.dart';
+import 'package:angel_messages/shared/providers/providers_manual.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
