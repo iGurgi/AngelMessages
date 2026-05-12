@@ -7,7 +7,7 @@ part 'message_detail_provider.g.dart';
 @riverpod
 class MessageDetail extends _$MessageDetail {
   @override
-  Future<Message?> build(String messageId) async {
+  Future<MessageData?> build(String messageId) async {
     final repository = ref.watch(messageRepositoryProvider);
     return repository.getMessageById(messageId);
   }
