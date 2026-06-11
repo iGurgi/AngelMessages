@@ -1,5 +1,5 @@
 name: angel_messages
-description: A spiritual messaging app for daily inspiration
+description: A spiritual messaging app delivering daily angel-themed inspirational notifications
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -11,15 +11,18 @@ dependencies:
   flutter:
     sdk: flutter
   
-  # Core Runtime
+  # State management & DI
   flutter_riverpod: 2.5.1
   riverpod_annotation: 2.3.5
-  go_router: 14.3.0
-  dio: 5.7.0
-  freezed_annotation: 2.4.4
-  json_annotation: 4.9.0
   
-  # Local Storage
+  # Routing & navigation
+  go_router: 14.3.0
+  uni_links: 0.5.1
+  
+  # HTTP client
+  dio: 5.7.0
+  
+  # Local storage
   isar: 3.1.8
   isar_flutter_libs: 3.1.8
   shared_preferences: 2.3.2
@@ -31,45 +34,46 @@ dependencies:
   flutter_timezone: 1.0.8
   permission_handler: 11.3.1
   
-  # Background Tasks
+  # Background tasks
   workmanager: 0.5.2
   background_fetch: 1.2.2
   
-  # UI & Design System
+  # Data models
+  freezed_annotation: 2.4.4
+  json_annotation: 4.9.0
+  
+  # UI & design
   google_fonts: 6.2.1
   flutter_svg: 2.0.10+1
   cached_network_image: 3.4.1
   lottie: 3.1.2
   shimmer: 3.0.0
   gap: 3.0.1
-  
-  # Navigation & Deep Links
-  uni_links: 0.5.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   
-  # Code Generation & Serialisation
+  # Code generation
+  build_runner: 2.4.12
   freezed: 2.5.7
   riverpod_generator: 2.4.3
   json_serializable: 6.8.0
   isar_generator: 3.1.8
-  build_runner: 2.4.12
+  
+  # Linting
+  flutter_lints: 5.0.0
   
   # Testing
   mocktail: 1.0.4
   riverpod_test: 2.3.0
   fake_async: 1.3.1
   isar_test: 3.1.8
-  
-  # Linter
-  flutter_lints: 5.0.0
 
 flutter:
   uses-material-design: true
   
   assets:
     - assets/images/
+    - assets/icons/
     - assets/animations/
-    - assets/svg/
