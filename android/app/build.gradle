@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.angel_messages"
+    namespace "com.angelmessages.app"
     compileSdk 35
     ndkVersion flutter.ndkVersion
 
@@ -41,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.angel_messages"
+        applicationId "com.angelmessages.app"
         minSdk 26
         targetSdk 35
         versionCode flutterVersionCode.toInteger()
