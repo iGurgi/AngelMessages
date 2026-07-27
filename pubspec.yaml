@@ -1,41 +1,78 @@
-name: AngelMessages
-description: A personal Flutter app.
-publish_to: none
+name: angel_messages
+description: A spiritual messaging app delivering daily angel-themed inspirational notifications
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: '>=3.5.4 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # State management
-  flutter_riverpod: ^3.3.1
-  riverpod_annotation: ^4.0.2
-
-  # Navigation
-  go_router: ^17.1.0
-
-  # Immutable models + unions
-  freezed_annotation: ^3.1.0
-  json_annotation: ^4.9.0
-
-  # HTTP
-  dio: ^5.7.0
+  
+  # State management & DI
+  flutter_riverpod: 2.5.1
+  riverpod_annotation: 2.3.5
+  
+  # Routing & navigation
+  go_router: 14.3.0
+  uni_links: 0.5.1
+  
+  # HTTP client
+  dio: 5.7.0
+  
+  # Local storage
+  isar: 3.1.8
+  isar_flutter_libs: 3.1.8
+  shared_preferences: 2.3.2
+  path_provider: 2.1.4
+  
+  # Notifications
+  flutter_local_notifications: 17.2.3
+  timezone: 0.9.4
+  flutter_timezone: 1.0.8
+  permission_handler: 11.3.1
+  
+  # Background tasks
+  workmanager: 0.5.2
+  background_fetch: 1.2.2
+  
+  # Data models
+  freezed_annotation: 2.4.4
+  json_annotation: 4.9.0
+  
+  # UI & design
+  google_fonts: 6.2.1
+  flutter_svg: 2.0.10+1
+  cached_network_image: 3.4.1
+  lottie: 3.1.2
+  shimmer: 3.0.0
+  gap: 3.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  
   # Code generation
-  build_runner: ^2.4.13
-  riverpod_generator: ^4.0.3
-  freezed: ^3.2.5
-  json_serializable: ^6.8.0
-
+  build_runner: 2.4.12
+  freezed: 2.5.7
+  riverpod_generator: 2.4.3
+  json_serializable: 6.8.0
+  isar_generator: 3.1.8
+  
   # Linting
-  flutter_lints: ^6.0.0
+  flutter_lints: 5.0.0
+  
+  # Testing
+  mocktail: 1.0.4
+  riverpod_test: 2.3.0
+  fake_async: 1.3.1
+  isar_test: 3.1.8
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
